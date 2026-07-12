@@ -44,6 +44,10 @@ export type Order = {
   total: number;
   status: OrderStatus;
   placedOn: string;
+  buyerName?: string;
+  buyerPhone?: string;
+  buyerLocation?: string;
+  createdAt?: string;
 };
 
 export const CROPS: Crop[] = [
@@ -236,6 +240,10 @@ export const MOCK_ORDERS: Order[] = [
     total: 1160,
     status: "confirmed",
     placedOn: "Jul 8, 2026",
+    buyerName: "Juan Dela Cruz",
+    buyerPhone: "0912-345-6789",
+    buyerLocation: "Barangay Silang, Cavite",
+    createdAt: "2026-07-08T09:10:00.000Z",
   },
   {
     id: "o2",
@@ -244,6 +252,10 @@ export const MOCK_ORDERS: Order[] = [
     total: 1300,
     status: "completed",
     placedOn: "Jul 2, 2026",
+    buyerName: "Maria Santos",
+    buyerPhone: "0917-888-1122",
+    buyerLocation: "Indang, Cavite",
+    createdAt: "2026-07-02T14:40:00.000Z",
   },
 ];
 

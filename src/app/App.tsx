@@ -9,6 +9,7 @@ import { FarmerHome } from "./components/screens/FarmerHome";
 import { BuyerHome } from "./components/screens/BuyerHome";
 import { CreateListing } from "./components/screens/CreateListing";
 import { ListingDetail } from "./components/screens/ListingDetail";
+import { OrderDetail } from "./components/screens/OrderDetail";
 import { OrderConfirm } from "./components/screens/OrderConfirm";
 import { Orders } from "./components/screens/Orders";
 import { Profile as ProfileScreen } from "./components/screens/Profile";
@@ -30,12 +31,13 @@ import {
 type Overlay =
   | { type: "create" }
   | { type: "detail"; listing: Listing }
+  | { type: "orderDetail"; orderId: string }
   | { type: "confirm"; listing: Listing; qty: number; total: number }
   | null;
 
 const NEXT_STATUS: Record<OrderStatus, OrderStatus> = {
   pending: "confirmed",
-  confirmed: "completed",
+  confirmed: "packed",
   packed: "shipped",
   shipped: "completed",
   completed: "completed",
@@ -110,6 +112,10 @@ export default function App() {
     setOverlay({ type: "detail", listing });
   }
 
+  function openOrderDetail(orderId: string) {
+    setOverlay({ type: "orderDetail", orderId });
+  }
+
   function placeOrder(listing: Listing, qty: number, total: number) {
     const order: Order = {
       id: "o" + Date.now(),
@@ -122,6 +128,10 @@ export default function App() {
         day: "numeric",
         year: "numeric",
       }),
+      buyerName: profile?.businessName || profile?.name || "Buyer",
+      buyerPhone: profile?.phone,
+      buyerLocation: profile?.barangay || "Cavite",
+      createdAt: new Date().toISOString(),
     };
     setOrders((o) => [order, ...o]);
     setOverlay({ type: "confirm", listing, qty, total });
@@ -184,6 +194,7 @@ export default function App() {
             onAdvance={advanceOrder}
             onCancel={cancelOrder}
             onGoToListings={() => setTab("listings")}
+            onViewDetails={openOrderDetail}
           />
         );
       case "profile":
@@ -224,6 +235,22 @@ export default function App() {
           role={profile.role === "farmer" ? "farmer" : "buyer"}
           onBack={() => setOverlay(null)}
           onOrder={(qty, total) => placeOrder(overlay.listing, qty, total)}
+        />
+      );
+    }
+    if (overlay.type === "orderDetail") {
+      const order = orders.find((o) => o.id === overlay.orderId);
+      if (!order) return null;
+      const listing = allListings.find((l) => l.id === order.listingId);
+      if (!listing) return null;
+      return (
+        <OrderDetail
+          order={order}
+          listing={listing}
+          onBack={() => setOverlay(null)}
+          onAdvance={() => advanceOrder(order.id)}
+          onCancel={profile.role === "farmer" ? () => cancelOrder(order.id) : undefined}
+          onChat={() => setOverlay(null)}
         />
       );
     }

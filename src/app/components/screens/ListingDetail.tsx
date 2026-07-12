@@ -192,7 +192,7 @@ export function ListingDetail({
               onClick={() => setChatOpen(true)}
               className="h-12 rounded-xl border border-primary text-primary flex items-center justify-center gap-2 active:bg-primary/10 transition"
             >
-              <MessageCircle size={18} /> Message {listing.farmer}
+              <MessageCircle size={18} /> Message
             </button>
             <button
               onClick={() => {
