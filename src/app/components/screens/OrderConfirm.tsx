@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { Listing, cropById, peso } from "../../data";
 
@@ -16,22 +15,6 @@ export function OrderConfirm({
   onDone: () => void;
 }) {
   const crop = cropById(listing.cropId);
-
-  useEffect(() => {
-    let mounted = true;
-    import("canvas-confetti").then((m) => {
-      if (mounted)
-        m.default({
-          particleCount: 90,
-          spread: 70,
-          origin: { y: 0.4 },
-          colors: ["#2F7D4F", "#F0A93E", "#C1613D"],
-        });
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   return (
     <div className="h-full flex flex-col items-center justify-center px-8 text-center">
