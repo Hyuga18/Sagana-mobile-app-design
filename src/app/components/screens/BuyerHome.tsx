@@ -11,7 +11,7 @@ const SORTS: { id: Sort; label: string }[] = [
   { id: "recent", label: "Newest" },
   { id: "price-asc", label: "Price: low" },
   { id: "price-desc", label: "Price: high" },
-  { id: "harvest", label: "Harvest soon" },
+  { id: "harvest", label: "Freshness" },
 ];
 
 export function BuyerHome({
@@ -198,6 +198,7 @@ export function BuyerHome({
                 key={l.id}
                 listing={l}
                 onClick={() => onOpenListing(l)}
+                viewerRole="buyer"
               />
             ))}
             {filtered.length === 0 && (

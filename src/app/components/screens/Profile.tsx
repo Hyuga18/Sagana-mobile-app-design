@@ -17,6 +17,7 @@ import {
   MessageSquareWarning,
   FileQuestion,
   Sprout,
+  ShoppingBag,
 } from "lucide-react";
 import { Profile as ProfileType } from "../../lib/api";
 import { cropById } from "../../data";
@@ -28,6 +29,7 @@ export function Profile({
   onLogout,
   onAddCrop,
   onViewListings,
+  onViewOrders,
 }: {
   profile: ProfileType;
   darkMode?: boolean;
@@ -35,12 +37,13 @@ export function Profile({
   onLogout: () => void;
   onAddCrop?: () => void;
   onViewListings?: () => void;
+  onViewOrders?: () => void;
 }) {
   const isFarmer = profile.role === "farmer";
-  const name = isFarmer ? profile.name : profile.businessName || profile.name;
+  const name = isFarmer ? profile.name : profile.businessName || profile.name || "Buyer Name";
   const roleLabel = isFarmer
     ? `👨‍🌾 Farmer · ${profile.barangay || "Cavite"}`
-    : `${profile.businessType || "Business"} · ${profile.barangay || "Cavite"}`;
+    : `🛒 Buyer · ${profile.barangay || "Cavite"}`;
   const crops = profile.crops ?? [];
 
   return (
@@ -77,11 +80,22 @@ export function Profile({
         </div>
 
         {!isFarmer && (
-          <div className="rounded-2xl bg-card border border-border p-4 mt-3 space-y-1.5">
-            <Detail label="Permit no." value={profile.permitNumber ?? "—"} />
-            <Detail label="Contact" value={profile.contactPerson ?? "—"} />
+          <div className="rounded-2xl bg-card border border-border p-4 mt-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] text-muted-foreground">Contact info</p>
+              {profile.businessType && (
+                <span className="text-[11px] rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                  {profile.businessType}
+                </span>
+              )}
+            </div>
+            <Detail label="Contact" value={profile.contactPerson ?? profile.name ?? "Buyer Name"} />
             <Detail label="Phone" value={profile.phone || "—"} />
             <Detail label="Email" value={profile.email} />
+            {profile.businessName && <Detail label="Business" value={profile.businessName} />}
+            {profile.permitNumber && profile.businessName && (
+              <Detail label="Permit no." value={profile.permitNumber} />
+            )}
           </div>
         )}
 
@@ -103,14 +117,78 @@ export function Profile({
           <Stat
             value={isFarmer ? "12" : "8"}
             label={isFarmer ? "Listings" : "Orders"}
-            onClick={isFarmer ? onViewListings : undefined}
+            onClick={isFarmer ? onViewListings : onViewOrders}
           />
           <Stat
             value={isFarmer ? "38" : "5"}
             label={isFarmer ? "Sales" : "Farmers"}
+            onClick={() => document.getElementById("favorite-farmers")?.scrollIntoView({ behavior: "smooth", block: "start" })}
           />
-          <Stat value="4.8★" label="Rating" />
+          <Stat
+            value="4.8★"
+            label="Rating"
+            onClick={() => document.getElementById("order-history")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          />
         </div>
+
+        {/* Button for viewing orders (for buyers) is commented out for now, as per the original code. */}
+        {/* {!isFarmer && (
+          <button
+            onClick={onViewOrders}
+            className="w-full h-12 rounded-xl bg-primary text-primary-foreground mt-3 active:scale-[0.99] transition flex items-center justify-center gap-2"
+          >
+            <ShoppingBag size={18} /> View all orders
+          </button>
+        )} */}
+
+        {!isFarmer && (
+          <div id="favorite-farmers" className="rounded-2xl bg-card border border-border p-4 mt-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[13px] text-muted-foreground">Favorite Farmers</p>
+              <span className="text-[11px] rounded-full bg-[#2F7D4F]/10 text-primary px-2 py-0.5">3 saved</span>
+            </div>
+            <div className="space-y-2">
+              {[
+                { name: "Aling Rosa", place: "Silang" },
+                { name: "Ka Ben", place: "Naic" },
+              ].map((item) => (
+                <div key={item.name} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2.5">
+                  <div>
+                    <p className="text-[14px]">{item.name}</p>
+                    <p className="text-[12px] text-muted-foreground">{item.place}</p>
+                  </div>
+                  <button className="h-9 px-3 rounded-xl border border-primary text-primary text-[13px]">
+                    Chat
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Order History */}
+        {/* {!isFarmer && (
+          <div id="order-history" className="rounded-2xl bg-card border border-border p-4 mt-3 space-y-2">
+            <p className="text-[13px] text-muted-foreground">Notification preferences</p>
+            <div className="space-y-1.5 text-[13px] text-foreground">
+              <p>🔔 New listings from favorite farmers</p>
+              <p>🔔 Price drops on saved crops</p>
+              <p>🔔 Order status updates</p>
+              <p>🔔 Promotions & deals</p>
+            </div>
+          </div>
+        )} */}
+
+          {/* Payment Methods */}
+        {/* {!isFarmer && (
+          <div className="rounded-2xl bg-card border border-border p-4 mt-3 space-y-2">
+            <p className="text-[13px] text-muted-foreground">Payment methods</p>
+            <div className="space-y-1.5 text-[13px] text-foreground">
+              <p>💳 Saved payment methods</p>
+              <p>💰 Wallet balance</p>
+            </div>
+          </div>
+        )} */}
 
         {/* Your crops with add CTA */}
         {isFarmer && (
@@ -161,7 +239,7 @@ export function Profile({
 
       {/* Grouped menu */}
       <section className="px-5 mt-6 space-y-5">
-        <MenuGroup title="Account settings">
+        <MenuGroup title="Account">
           <Row icon={User} label="Edit profile" />
           <Row icon={KeyRound} label="Change password" />
           <Row icon={CreditCard} label="Payment methods" />
@@ -170,7 +248,15 @@ export function Profile({
         <MenuGroup title="Notifications">
           <Row icon={Bell} label="Order updates" />
           <Row icon={Settings} label="Price alerts" />
+          <Row icon={Bell} label="Promotions" />
         </MenuGroup>
+
+        {!isFarmer && (
+          <MenuGroup title="Favorites">
+            <Row icon={Sprout} label="Favorite farmers" />
+            <Row icon={Sprout} label="Saved crops" />
+          </MenuGroup>
+        )}
 
         <MenuGroup title="Help & support">
           <Row icon={FileQuestion} label="FAQ" />

@@ -29,7 +29,13 @@ export type Listing = {
   createdAt?: string; // ISO timestamp; used for the "NEW" badge
 };
 
-export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "packed"
+  | "shipped"
+  | "completed"
+  | "cancelled";
 
 export type Order = {
   id: string;

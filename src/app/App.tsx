@@ -36,6 +36,8 @@ type Overlay =
 const NEXT_STATUS: Record<OrderStatus, OrderStatus> = {
   pending: "confirmed",
   confirmed: "completed",
+  packed: "shipped",
+  shipped: "completed",
   completed: "completed",
   cancelled: "cancelled",
 };
@@ -130,9 +132,15 @@ export default function App() {
       os.map((o) => {
         if (o.id !== id) return o;
         const next = NEXT_STATUS[o.status];
-        toast.success(
-          next === "confirmed" ? "Order confirmed" : "Order marked completed",
-        );
+        const message =
+          next === "confirmed"
+            ? "Order confirmed"
+            : next === "packed"
+              ? "Order packed"
+              : next === "shipped"
+                ? "Order shipped"
+                : "Order marked completed";
+        toast.success(message);
         return { ...o, status: next };
       }),
     );
@@ -175,6 +183,7 @@ export default function App() {
             role={role === "farmer" ? "farmer" : "buyer"}
             onAdvance={advanceOrder}
             onCancel={cancelOrder}
+            onGoToListings={() => setTab("listings")}
           />
         );
       case "profile":
@@ -186,6 +195,7 @@ export default function App() {
             onLogout={logout}
             onAddCrop={() => setOverlay({ type: "create" })}
             onViewListings={() => setTab("listings")}
+            onViewOrders={() => setTab("orders")}
           />
         );
     }
