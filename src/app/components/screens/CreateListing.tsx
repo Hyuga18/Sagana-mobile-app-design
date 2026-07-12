@@ -33,7 +33,14 @@ export function CreateListing({
   const [locating, setLocating] = useState(false);
 
   const crop = cropById(cropId);
-  const valid = quantity && price && harvestDate;
+  const quantityValue = Number(quantity);
+  const priceValue = Number(price);
+  const valid =
+    Number.isFinite(quantityValue) &&
+    quantityValue > 0 &&
+    Number.isFinite(priceValue) &&
+    priceValue > 0 &&
+    Boolean(harvestDate);
 
   // Fill the price from the latest predicted forecast value for this crop.
   function suggestPrice() {
@@ -76,9 +83,9 @@ export function CreateListing({
       cropId,
       farmer: "Aling Rosa",
       barangay,
-      quantity: Number(quantity),
+      quantity: quantityValue,
       unit: crop.unit,
-      price: Number(price),
+      price: priceValue,
       harvestDate: new Date(harvestDate).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -151,6 +158,8 @@ export function CreateListing({
               <input
                 type="number"
                 inputMode="numeric"
+                min="1"
+                step="1"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="Enter amount"
@@ -181,6 +190,8 @@ export function CreateListing({
           <input
             type="number"
             inputMode="numeric"
+            min="0.01"
+            step="0.01"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Enter amount"
