@@ -1,12 +1,13 @@
-import { Home, Sprout, ShoppingBag, User, Store } from "lucide-react";
+import { Home, Sprout, ShoppingBag, User, Store, CloudSun } from "lucide-react";
 import { Role } from "../data";
 
-export type Tab = "home" | "listings" | "orders" | "profile";
+export type Tab = "home" | "listings" | "orders" | "weather" | "profile";
 
 const FARMER_TABS: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "listings", label: "Listings", icon: Sprout },
   { id: "orders", label: "Orders", icon: ShoppingBag },
+  { id: "weather", label: "Weather", icon: CloudSun },
   { id: "profile", label: "Profile", icon: User },
 ];
 
@@ -14,6 +15,7 @@ const FARMER_TABS: { id: Tab; label: string; icon: typeof Home }[] = [
 const BUYER_TABS: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "home", label: "Market", icon: Store },
   { id: "orders", label: "Orders", icon: ShoppingBag },
+  { id: "weather", label: "Weather", icon: CloudSun },
   { id: "profile", label: "Profile", icon: User },
 ];
 

@@ -380,3 +380,202 @@ export function daysSince(dateStr: string): string {
   if (days === 1) return "Yesterday";
   return `${days} days ago`;
 }
+
+export type WeatherDay = {
+  day: string;
+  date: string;
+  icon: string;
+  high: number;
+  low: number;
+  rainChance: number;
+  condition: string;
+  severity: "low" | "medium" | "high";
+};
+
+export type WeatherAlert = {
+  id: string;
+  type: "TYPHOON" | "HEAVY_RAIN" | "HEATWAVE" | "COLD_SNAP" | "WIND_ADVISORY";
+  severity: "Critical" | "High" | "Medium" | "Low";
+  title: string;
+  description: string;
+  action: string;
+  issuedAt: string;
+  startDate: string;
+  endDate: string;
+};
+
+export type PriceImpact = {
+  cropId: string;
+  cropName: string;
+  emoji: string;
+  currentPrice: number;
+  predictedPrice: number;
+  changePercent: number;
+  direction: "UP" | "DOWN" | "STABLE";
+  recommendation: "HOLD" | "SELL" | "WAIT";
+  confidenceScore: number;
+  weatherImpact: string;
+  rationale: string;
+  tip: string;
+  weatherWindow: string;
+};
+
+export type WeatherSnapshot = {
+  barangay: string;
+  city: string;
+  updatedAt: string;
+  current: {
+    emoji: string;
+    temperature: number;
+    feelsLike: number;
+    condition: string;
+    humidity: number;
+    windSpeed: number;
+    rainChance: number;
+    sunrise: string;
+    sunset: string;
+  };
+  forecast: WeatherDay[];
+  alerts: WeatherAlert[];
+  impacts: PriceImpact[];
+};
+
+function hashText(value: string): number {
+  return value.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+}
+
+export function weatherSnapshotForBarangay(barangay: string): WeatherSnapshot {
+  const seed = hashText(barangay || "Silang");
+  const offset = seed % 4;
+  const temperature = 31 + offset;
+  const feelsLike = temperature + 3;
+  const humidity = 74 + (seed % 8);
+  const windSpeed = 10 + (seed % 6);
+  const rainChance = 18 + (seed % 4) * 7;
+
+  const forecastTemplates: Omit<WeatherDay, "date">[] = [
+    { day: "Mon", icon: "☀️", high: 32, low: 24, rainChance: 10, condition: "Clear sky", severity: "low" },
+    { day: "Tue", icon: "⛅", high: 30, low: 22, rainChance: 30, condition: "Partly cloudy", severity: "medium" },
+    { day: "Wed", icon: "🌧️", high: 28, low: 23, rainChance: 80, condition: "Heavy rain", severity: "high" },
+    { day: "Thu", icon: "🌧️", high: 27, low: 22, rainChance: 70, condition: "Heavy rain", severity: "high" },
+    { day: "Fri", icon: "☀️", high: 31, low: 23, rainChance: 15, condition: "Sunny", severity: "low" },
+    { day: "Sat", icon: "☀️", high: 32, low: 24, rainChance: 10, condition: "Clear sky", severity: "low" },
+    { day: "Sun", icon: "⛅", high: 30, low: 22, rainChance: 25, condition: "Cloudy", severity: "medium" },
+  ];
+
+  const forecast = forecastTemplates.map((entry, index) => ({
+    ...entry,
+    date: `Jul ${14 + index}, 2026`,
+    high: entry.high + (seed % 2),
+    low: entry.low + (seed % 2),
+    rainChance: Math.max(5, Math.min(95, entry.rainChance + (seed % 5) - 2)),
+  }));
+
+  const alerts: WeatherAlert[] = [
+    {
+      id: "heavy-rain",
+      type: "HEAVY_RAIN",
+      severity: "High",
+      title: "Heavy rain warning: Jul 16-18",
+      description: "Protect your crops from flooding and waterlogging.",
+      action: "Clear drainage systems. Harvest early if possible.",
+      issuedAt: "2 hours ago",
+      startDate: "Jul 16, 2026",
+      endDate: "Jul 18, 2026",
+    },
+    {
+      id: "heatwave",
+      type: "HEATWAVE",
+      severity: "Medium",
+      title: "Heatwave advisory: Jul 20-22",
+      description: "Irrigate early morning to reduce heat stress.",
+      action: "Water crops before 8:00 AM.",
+      issuedAt: "1 day ago",
+      startDate: "Jul 20, 2026",
+      endDate: "Jul 22, 2026",
+    },
+  ];
+
+  const impacts: PriceImpact[] = [
+    {
+      cropId: "tomato",
+      cropName: "Tomato",
+      emoji: "🍅",
+      currentPrice: 45,
+      predictedPrice: 48.6,
+      changePercent: 8,
+      direction: "UP",
+      recommendation: "HOLD",
+      confidenceScore: 0.85,
+      weatherImpact: "Rain expected Jul 15-17",
+      rationale: "Rain may reduce supply and push prices higher.",
+      tip: "Hold your stock for better prices.",
+      weatherWindow: "Jul 15-17",
+    },
+    {
+      cropId: "pepper",
+      cropName: "Bell Pepper",
+      emoji: "🫑",
+      currentPrice: 130,
+      predictedPrice: 114.4,
+      changePercent: -12,
+      direction: "DOWN",
+      recommendation: "SELL",
+      confidenceScore: 0.82,
+      weatherImpact: "Heatwave expected Jul 20-22",
+      rationale: "Heat can speed ripening and create oversupply.",
+      tip: "Sell now before prices fall.",
+      weatherWindow: "Jul 20-22",
+    },
+    {
+      cropId: "banana",
+      cropName: "Saba Banana",
+      emoji: "🍌",
+      currentPrice: 40,
+      predictedPrice: 46,
+      changePercent: 15,
+      direction: "UP",
+      recommendation: "HOLD",
+      confidenceScore: 0.7,
+      weatherImpact: "Typhoon risk Jul 18-19",
+      rationale: "Supply disruption may push prices up.",
+      tip: "Hold part of your harvest for higher prices.",
+      weatherWindow: "Jul 18-19",
+    },
+    {
+      cropId: "eggplant",
+      cropName: "Eggplant",
+      emoji: "🍆",
+      currentPrice: 58,
+      predictedPrice: 54,
+      changePercent: -7,
+      direction: "DOWN",
+      recommendation: "SELL",
+      confidenceScore: 0.74,
+      weatherImpact: "Rain expected Jul 16-18",
+      rationale: "Moist conditions can accelerate supply.",
+      tip: "Sell soon before market prices soften.",
+      weatherWindow: "Jul 16-18",
+    },
+  ];
+
+  return {
+    barangay: barangay || "Silang",
+    city: `${barangay || "Silang"}, Cavite`,
+    updatedAt: "6:00 AM today",
+    current: {
+      emoji: "🌤️",
+      temperature,
+      feelsLike,
+      condition: "Clear sky",
+      humidity,
+      windSpeed,
+      rainChance,
+      sunrise: "5:36 AM",
+      sunset: "6:28 PM",
+    },
+    forecast,
+    alerts,
+    impacts,
+  };
+}

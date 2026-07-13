@@ -4,6 +4,7 @@ import { ListingCard } from "../ListingCard";
 import { ListingCardSkeleton } from "../Skeleton";
 import { EmptyState } from "../EmptyState";
 import { BARANGAYS, CROPS, Listing } from "../../data";
+import { WeatherWidget } from "./WeatherDashboard";
 
 type Sort = "recent" | "price-asc" | "price-desc" | "harvest";
 
@@ -17,9 +18,15 @@ const SORTS: { id: Sort; label: string }[] = [
 export function BuyerHome({
   listings,
   onOpenListing,
+  barangay,
+  onOpenWeatherForecast,
+  onOpenWeatherImpact,
 }: {
   listings: Listing[];
   onOpenListing: (l: Listing) => void;
+  barangay: string;
+  onOpenWeatherForecast: () => void;
+  onOpenWeatherImpact: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [cropFilter, setCropFilter] = useState<string | null>(null);
@@ -85,6 +92,12 @@ export function BuyerHome({
         </p>
         <h2 className="mt-0.5">Fresh from the farm 🧺</h2>
       </header>
+
+      <WeatherWidget
+        barangay={locationFilter ?? barangay}
+        onOpenForecast={onOpenWeatherForecast}
+        onOpenImpact={onOpenWeatherImpact}
+      />
 
       <div className="px-5 sticky top-0 z-10 bg-background pb-3">
         <div className="flex gap-2">

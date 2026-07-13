@@ -7,6 +7,7 @@ import { PendingApproval } from "./components/screens/PendingApproval";
 import { EditBusiness } from "./components/screens/EditBusiness";
 import { FarmerHome } from "./components/screens/FarmerHome";
 import { BuyerHome } from "./components/screens/BuyerHome";
+import { WeatherDashboard } from "./components/screens/WeatherDashboard";
 import { CreateListing } from "./components/screens/CreateListing";
 import { ListingDetail } from "./components/screens/ListingDetail";
 import { OrderDetail } from "./components/screens/OrderDetail";
@@ -51,6 +52,7 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [tab, setTab] = useState<Tab>("home");
+  const [weatherFocus, setWeatherFocus] = useState<"forecast" | "impact" | "alerts" | "current" | undefined>(undefined);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [editingBusiness, setEditingBusiness] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -116,6 +118,11 @@ export default function App() {
     setOverlay({ type: "orderDetail", orderId });
   }
 
+  function openWeatherDashboard(focus?: "forecast" | "impact" | "alerts" | "current") {
+    setWeatherFocus(focus);
+    setTab("weather");
+  }
+
   function placeOrder(listing: Listing, qty: number, total: number) {
     const order: Order = {
       id: "o" + Date.now(),
@@ -172,7 +179,14 @@ export default function App() {
         // Buyers only have a Market (home) tab; farmers get a dashboard (home)
         // and a manage-listings (listings) tab.
         if (role !== "farmer") {
-          return <BuyerHome listings={allListings} onOpenListing={openListing} />;
+          return (
+            <BuyerHome
+              listings={allListings}
+              onOpenListing={openListing}
+              onOpenWeatherForecast={() => openWeatherDashboard("forecast")}
+              onOpenWeatherImpact={() => openWeatherDashboard("impact")}
+            />
+          );
         }
         return (
           <FarmerHome
@@ -183,6 +197,15 @@ export default function App() {
             onOpenListing={openListing}
             onQuickAction={openListing}
             onGoToListings={() => setTab("listings")}
+            onOpenWeatherForecast={() => openWeatherDashboard("forecast")}
+            onOpenWeatherImpact={() => openWeatherDashboard("impact")}
+          />
+        );
+      case "weather":
+        return (
+          <WeatherDashboard
+            barangay={profile.barangay || "Silang"}
+            focusSection={weatherFocus}
           />
         );
       case "orders":
@@ -319,7 +342,12 @@ export default function App() {
           <BottomTabBar
             active={tab}
             role={profile.role === "farmer" ? "farmer" : "buyer"}
-            onChange={setTab}
+            onChange={(nextTab) => {
+              setTab(nextTab);
+              if (nextTab !== "weather") {
+                setWeatherFocus(undefined);
+              }
+            }}
           />
         )}
       </>

@@ -13,6 +13,7 @@ import { ForecastRecommendation } from "../ForecastRecommendation";
 import { ListingCard } from "../ListingCard";
 import { EmptyState } from "../EmptyState";
 import { Listing, cropById, forecastAdvice, forecastForCrop } from "../../data";
+import { WeatherWidget } from "./WeatherDashboard";
 
 export function FarmerHome({
   view = "home",
@@ -22,6 +23,9 @@ export function FarmerHome({
   onOpenListing,
   onQuickAction,
   onGoToListings,
+  barangay,
+  onOpenWeatherForecast,
+  onOpenWeatherImpact,
 }: {
   view?: "home" | "listings";
   listings: Listing[];
@@ -30,6 +34,9 @@ export function FarmerHome({
   onOpenListing: (l: Listing) => void;
   onQuickAction?: (l: Listing) => void;
   onGoToListings?: () => void;
+  barangay: string;
+  onOpenWeatherForecast: () => void;
+  onOpenWeatherImpact: () => void;
 }) {
   const ownCropIds = Array.from(new Set(listings.map((l) => l.cropId)));
   const cropChoices = (ownCropIds.length ? ownCropIds : ["tomato"]).map(
@@ -129,6 +136,12 @@ export function FarmerHome({
           </div>
         </div>
       </section>
+
+      <WeatherWidget
+        barangay={barangay}
+        onOpenForecast={onOpenWeatherForecast}
+        onOpenImpact={onOpenWeatherImpact}
+      />
 
       <section className="px-5">
         <div className="flex items-center justify-between mb-2">
